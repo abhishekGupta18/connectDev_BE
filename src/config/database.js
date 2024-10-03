@@ -5,7 +5,6 @@ const connectDB = async () => {
     "mongodb+srv://abhishekg12703:lfKPAYfhxGaXdjbk@cluster0.urnqx.mongodb.net/devTinder"
   );
 };
-
 module.exports = connectDB;
 
 // "mongodb+srv://abhishekg12703:lfKPAYfhxGaXdjbk@cluster0.urnqx.mongodb.net/"
