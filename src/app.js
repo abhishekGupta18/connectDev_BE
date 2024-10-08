@@ -1,13 +1,17 @@
 const express = require("express");
 const connectDB = require("./config/database");
 const User = require("./models/user");
+const { userAuth } = require("./middlewares/auth");
 const { validationSignUpData } = require("./utilities/validation");
 const bcyrpt = require("bcrypt");
 const validator = require("validator");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 // signup api
 app.post("/signup", async (req, res) => {
@@ -54,6 +58,14 @@ app.post("/login", async (req, res) => {
     const checkPassword = await bcyrpt.compare(password, user.password);
 
     if (checkPassword) {
+      // create token
+
+      const token = await jwt.sign({ _id: user._id }, "abhi12703");
+
+      // set cookie
+
+      res.cookie("token", token);
+
       res.send("login successfully");
     } else {
       throw new Error("wrong credentials");
@@ -63,84 +75,14 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// get user by email
+// profile api
 
-app.get("/getUser", async (req, res) => {
-  const userEmail = req.body.email;
-  if (userEmail.length === 0) {
-    res.send("user not exist");
-  }
+app.get("/profile", userAuth, (req, res) => {
   try {
-    const user = await User.find({ email: userEmail });
+    const user = req.user;
     res.send(user);
-  } catch {
-    res.status(400).send("something went wrong");
-  }
-});
-
-// get all data
-
-app.get("/getAllUsers", async (req, res) => {
-  try {
-    const allUsers = await User.find({});
-    res.send(allUsers);
-  } catch {
-    res.status(400).send("something went wrong");
-  }
-});
-
-// delete user
-
-app.delete("/user", async (req, res) => {
-  const userId = req.body._id;
-  if (userId.length === 0) {
-    res.send("user not found");
-  }
-
-  try {
-    const user = await User.findByIdAndDelete({ _id: userId });
-    res.send("user deleted successfully");
-  } catch {
-    res.status(400).send("something went wrong");
-  }
-});
-
-// update data of user
-
-app.patch("/user/:id", async (req, res) => {
-  const userId = req.params.id;
-  const data = req.body;
-  try {
-    const updateAllowed = [
-      "firstName",
-      "lastName",
-      "age",
-      "about",
-      "photoUrl",
-      "password",
-      "gender",
-      "skills",
-    ];
-
-    const checkUpdate = Object.keys(data).every((k) =>
-      updateAllowed.includes(k)
-    );
-
-    if (!checkUpdate) {
-      throw new Error("update not allowed");
-    }
-
-    // if (req.body.skills.length > 10) {
-    //   throw new Error("skills more than 10 is not allowed");
-    // }
-
-    const user = await User.findByIdAndUpdate({ _id: userId }, data, {
-      returnDocument: "after",
-      runValidators: true,
-    });
-    res.send(user + " updated");
   } catch (e) {
-    res.status(400).send("something went wrong !! " + e.message);
+    res.status(400).send("Error: " + e.message);
   }
 });
 
