@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const jwt = require("jsonwebtoken");
+const bcyrpt = require("bcrypt");
 
 const userSchema = new mongoose.Schema(
   {
@@ -73,6 +75,26 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+// we need to use this keyword here so we can't use arrow function
+userSchema.methods.getJwtToken = async function () {
+  user = this;
+  const token = await jwt.sign({ _id: user._id }, "abhi12703", {
+    expiresIn: "7d",
+  });
+
+  return token;
+};
+
+userSchema.methods.validatePassword = async function (passwordInputByUser) {
+  user = this;
+  const isPasswordValid = await bcyrpt.compare(
+    passwordInputByUser,
+    user.password
+  );
+
+  return isPasswordValid;
+};
 
 const User = mongoose.model("User", userSchema);
 
