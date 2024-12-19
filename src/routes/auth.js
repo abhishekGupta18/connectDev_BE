@@ -12,12 +12,14 @@ const authRouter = express.Router();
 authRouter.post("/signup", async (req, res) => {
   try {
     // validating user data
+
     validationSignUpData(req);
 
     const { firstName, lastName, password, email, gender } = req.body;
     // encrypt password
 
     const enryptedPassword = await bcyrpt.hash(password, 10);
+    // salting and the Blowfish encryption algorithm
 
     const user = new User({
       firstName,
