@@ -70,7 +70,32 @@ requestRouter.post(
   userAuth,
   async (req, res) => {
     try {
-    } catch (e) {}
+      const loggedInUser = req.user;
+      const { requestId, status } = req.params;
+
+      const allowedStatus = ["accepted", "rejected"];
+      if (!allowedStatus.includes(status)) {
+        return res.status(400).send("request status not allowed");
+      }
+
+      const connectionRequest = await ConnectionRequest.findOne({
+        _id: requestId,
+        toUserId: loggedInUser._id,
+        status: "interested",
+      });
+
+      if (!connectionRequest) {
+        return res.status(404).send("request does not found");
+      }
+
+      connectionRequest.status = status;
+      const data = await connectionRequest.save();
+      res.json({ message: "Connection request " + status, data });
+    } catch (e) {
+      res.status(400).json({
+        message: "ERROR: " + e,
+      });
+    }
   }
 );
 
