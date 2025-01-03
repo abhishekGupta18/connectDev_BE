@@ -26,9 +26,12 @@ profileRouter.post("/profile/edit", userAuth, async (req, res) => {
 
     await loggedInUser.validate(); // validate with schema
     await loggedInUser.save();
-    await res.send("updation successfullly !!");
+    await res.json({
+      message: "updation successfull",
+      data: loggedInUser,
+    });
   } catch (e) {
-    res.status(400).send("Error: " + e.message);
+    res.status(400).send("Error: " + e);
   }
 });
 

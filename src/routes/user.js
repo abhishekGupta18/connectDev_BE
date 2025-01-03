@@ -4,7 +4,15 @@ const { userAuth } = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 
-const dataToBeSend = ["firstName", "lastName", "photoUrl", "about", "skills"];
+const dataToBeSend = [
+  "firstName",
+  "lastName",
+  "photoUrl",
+  "about",
+  "skills",
+  "gender",
+  "age",
+];
 
 // get all the pending requests for the loggedIn user
 
