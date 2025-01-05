@@ -29,16 +29,6 @@ authRouter.post("/signup", async (req, res) => {
       gender,
     });
 
-    // create token
-
-    const token = await user.getJwtToken();
-
-    // set cookie
-
-    res.cookie("token", token, {
-      expires: new Date(Date.now() + 8 * 3600000),
-    });
-
     await user.save();
     res.json({
       message: "user added successfully!!",
