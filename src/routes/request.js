@@ -78,11 +78,17 @@ requestRouter.post(
         return res.status(400).send("request status not allowed");
       }
 
+      console.log(requestId);
+      console.log(status);
+      console.log(loggedInUser._id);
+
       const connectionRequest = await ConnectionRequest.findOne({
         _id: requestId,
         toUserId: loggedInUser._id,
         status: "interested",
       });
+
+      console.log(connectionRequest);
 
       if (!connectionRequest) {
         return res.status(404).send("request does not found");
