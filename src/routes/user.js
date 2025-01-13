@@ -25,11 +25,13 @@ userRouter.get("/user/requests/recevied", userAuth, async (req, res) => {
       status: "interested",
     }).populate("fromUserId", dataToBeSend); // we can also write required fields in string as well
 
-    const data = connectionRequests.map((req) => req.fromUserId);
+    //const data = connectionRequests.map((req) => req.fromUserId);
+    // console.log(connectionRequests);
+    // console.log(data);
 
     res.json({
       message: "data fetched successfully",
-      data: data,
+      data: connectionRequests,
     });
   } catch (e) {
     res.status(400).send("ERROR: " + e);
