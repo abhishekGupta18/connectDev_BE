@@ -59,8 +59,6 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
       .populate("fromUserId", dataToBeSend)
       .populate("toUserId", dataToBeSend);
 
-    console.log(userConnections);
-
     const data = userConnections.map((row) => {
       if (row.fromUserId._id.toString() === loggedInUser._id.toString()) {
         return row.toUserId;
