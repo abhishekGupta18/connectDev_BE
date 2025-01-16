@@ -58,7 +58,7 @@ io.on("connection", (socket) => {
 connectDB()
   .then(() => {
     console.log("DB connection established..");
-    app.listen(1000, () => {
+    app.listen(3000, () => {
       console.log("app is running on server 3000");
     });
   })
