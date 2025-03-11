@@ -21,6 +21,7 @@ const validationEditProfileData = (req) => {
     "gender",
     "skills",
     "photoUrl",
+    "organization",
   ];
 
   const checkEditData = Object.keys(req.body).every((key) =>

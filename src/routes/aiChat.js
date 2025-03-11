@@ -17,12 +17,10 @@ aiChatRouter.post("/ask/ai", userAuth, async (req, res) => {
       return res.status(400).json({ error: "Question is required" });
     }
 
-    // Use the working model - gemini-1.5-pro
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
     const result = await model.generateContent(question);
     const answer = result.response.text();
 
-    // Use userId instead of _id for the database
     await AiChat.create({
       userId: _id,
       question,
