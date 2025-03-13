@@ -12,6 +12,7 @@ const dataToBeSend = [
   "skills",
   "gender",
   "age",
+  "isPremium",
 ];
 
 // get all the pending requests for the loggedIn user

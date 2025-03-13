@@ -5,10 +5,8 @@ const paymentRouter = express.Router();
 const razorpayInstance = require("../utilities/razorpay");
 const PaymentModel = require("../models/payment");
 const { membershipAmount } = require("../utilities/constant");
-const {
-  validateWebhookSignature,
-} = require("razorpay/dist/utils/razorpay-utils");
 const User = require("../models/user");
+const { default: axios } = require("axios");
 
 paymentRouter.post("/payment/create", userAuth, async (req, res) => {
   const { membershipType } = req.body;
@@ -53,42 +51,45 @@ paymentRouter.post("/payment/create", userAuth, async (req, res) => {
   }
 });
 
-paymentRouter.post("/payment/webhook", async (req, res) => {
-  console.log("webhook ", req.body);
-
-  const webhookSignature = req.get("X-Razorpay-Signature");
-
+paymentRouter.post("/payment/verify", async (req, res) => {
   try {
-    const isWebhookIsValid = validateWebhookSignature(
-      JSON.stringify(req.body),
-      webhookSignature,
-      process.env.Razorpay_webhook_secret
-    ); // verifying payment using webhook
+    const { orderId } = req.body;
 
-    if (!isWebhookIsValid) {
-      return res.status(400).json({ msg: "Webhook is invalid" });
+    const response = await axios.get(
+      `https://api.razorpay.com/v1/orders/${orderId}/payments`,
+      {
+        auth: {
+          username: process.env.Razorpay_key_id,
+          password: process.env.Razorpay_key_secret,
+        },
+      }
+    );
+
+    const paymentDetails = response.data.items[0]; // Get the first (most recent) payment
+
+    if (paymentDetails.status === "captured") {
+      const payment = await PaymentModel.findOne({ orderId });
+      if (payment) {
+        payment.status = "captured";
+        await payment.save();
+
+        const user = await User.findOne({ _id: payment.userId });
+        user.isPremium = true;
+        user.membershipType = payment.notes.membershipType;
+        await user.save();
+      }
+
+      return res.json({
+        success: true,
+        message: "Payment verified successfully",
+      });
+    } else {
+      return res
+        .status(400)
+        .json({ success: false, message: "Payment not captured yet" });
     }
-
-    const paymentDetails = req.body.payload.payment.entity;
-    console.log(paymentDetails);
-    const payment = await PaymentModel.findOne({
-      orderId: paymentDetails.order_id,
-    });
-    payment.status = paymentDetails.status;
-
-    const user = await User.findOne({ _id: payment.userId });
-    user.isPremium = true;
-    user.membershipType = payment.notes.membershipType;
-    user.save();
-
-    // if (req.body.event == "payment.captured") {
-    // }
-    // if (req.body.event == "payment.failed") {
-    // }
-
-    return res.status(200).json({ msg: "webhook received successfully" });
   } catch (e) {
-    res.status(500).json({ msg: e.message });
+    return res.status(500).json({ message: e.message });
   }
 });
 
