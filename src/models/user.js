@@ -84,11 +84,24 @@ const userSchema = new mongoose.Schema(
     organization: {
       type: String,
     },
+    githubUrl: {
+      type: String,
+    },
+    linkedlnUrl: {
+      type: String,
+    },
+    twitterUrl: {
+      type: String,
+    },
+    projectUrl: {
+      type: String,
+    },
   },
   {
     timestamps: true,
   }
 );
+// github, linkdln, twitter, projects link
 
 // we need to use this keyword here so we can't use arrow function
 userSchema.methods.getJwtToken = async function () {

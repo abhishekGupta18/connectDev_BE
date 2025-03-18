@@ -13,6 +13,10 @@ const dataToBeSend = [
   "gender",
   "age",
   "isPremium",
+  "githubUrl",
+  "linkedlnUrl",
+  "twitterUrl",
+  "projectUrl",
 ];
 
 // get all the pending requests for the loggedIn user
