@@ -34,4 +34,25 @@ const validationEditProfileData = (req) => {
 
   return checkEditData;
 };
-module.exports = { validationSignUpData, validationEditProfileData };
+
+const validateJobPostingData = (req) => {
+  const reqFields = [
+    "company",
+    "role",
+    "description",
+    "salary",
+    "applyLink",
+    "experience",
+    "location",
+    "deadline",
+  ];
+
+  const missingFields = reqFields.filter((field) => !req.body[field]);
+  if (missingFields.length > 0)
+    throw new Error(`Missing fields: ${missingFields.join(", ")}`);
+};
+module.exports = {
+  validationSignUpData,
+  validationEditProfileData,
+  validateJobPostingData,
+};
