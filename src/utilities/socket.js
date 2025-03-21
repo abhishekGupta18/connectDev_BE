@@ -30,7 +30,6 @@ const initializeSocket = (server) => {
       async ({ firstName, userId, targetUserId, text, createdAt }) => {
         try {
           const roomId = getSecretRoomId(userId, targetUserId);
-          console.log(firstName + " " + text + " " + createdAt);
 
           let chat = await Chat.findOne({
             participants: { $all: [userId, targetUserId] },

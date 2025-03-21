@@ -28,7 +28,9 @@ userRouter.get("/user/requests/recevied", userAuth, async (req, res) => {
     const connectionRequests = await ConnectionRequest.find({
       toUserId: loggedInUser._id,
       status: "interested",
-    }).populate("fromUserId", dataToBeSend); // we can also write required fields in string as well
+    })
+      .populate("fromUserId", dataToBeSend)
+      .sort({ createdAt: -1 }); // we can also write required fields in string as well
 
     //const data = connectionRequests.map((req) => req.fromUserId);
     // console.log(connectionRequests);

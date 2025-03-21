@@ -39,13 +39,29 @@ jobsRouter.post("/jobs/post", userAuth, async (req, res) => {
 
     await job.save();
 
-    res.json({
+    res.status(200).json({
       msg: "job added successfully",
       data: job,
     });
   } catch (e) {
     console.log(e);
     return res.status(500).json({ msg: e.message });
+  }
+});
+
+// getting all jobs
+
+jobsRouter.get("/jobs", userAuth, async (req, res) => {
+  try {
+    const jobs = await Jobs.find()
+      .populate("userId", "firstName lastName")
+      .sort({ createdAt: -1 });
+    res.status(200).json({
+      msg: "jobs fetched successfully",
+      data: jobs,
+    });
+  } catch (e) {
+    res.status(500).json({ msg: e.message });
   }
 });
 
