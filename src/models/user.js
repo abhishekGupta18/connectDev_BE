@@ -89,12 +89,27 @@ const userSchema = new mongoose.Schema(
     },
     linkedlnUrl: {
       type: String,
+      validate(value) {
+        if (!validator.isURL(value)) {
+          throw new Error("invalid linkedln url");
+        }
+      },
     },
     twitterUrl: {
       type: String,
+      validate(value) {
+        if (!validator.isURL(value)) {
+          throw new Error("invalid X url");
+        }
+      },
     },
     projectUrl: {
       type: String,
+      validate(value) {
+        if (!validator.isURL(value)) {
+          throw new Error("invalid url");
+        }
+      },
     },
   },
   {

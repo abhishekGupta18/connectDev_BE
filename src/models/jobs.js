@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator")
 
 const jobSchema = new mongoose.Schema(
   {
@@ -26,6 +27,11 @@ const jobSchema = new mongoose.Schema(
     applyLink: {
       type: String,
       required: true,
+      validate(value) {
+        if (!validator.isURL(value)) {
+          throw new Error("invalid applyLink");
+        }
+      },
     },
     experience: {
       type: String,
