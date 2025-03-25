@@ -20,7 +20,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://connectdev-community.vercel.app",
+      "http://connectdev-community.vercel.app",
     ],
     credentials: true,
   })
