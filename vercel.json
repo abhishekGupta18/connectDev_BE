@@ -11,9 +11,5 @@
       "src": "/(.*)",
       "dest": "src/app.js"
     }
-  ],
-  "env": {
-    "MONGO_URI": "@DB_connection_secret",
-    "NODE_ENV": "production"
-  }
+  ]
 }
