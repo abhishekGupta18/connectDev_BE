@@ -10,7 +10,10 @@ const http = require("http");
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://connectdev-community.vercel.app"],
+    origin: [
+      "http://localhost:5173",
+      "https://connectdev-community.vercel.app",
+    ],
     credentials: true,
   })
 );
