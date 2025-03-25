@@ -5,7 +5,15 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/app.js",
-    "dev": "nodemon src/app.js"
+    "dev": "nodemon src/app.js",
+    "vercel": "vercel",
+
+    "vercel:dev": "vercel dev",
+
+    "vercel:deploy": "vercel deploy",
+
+    "vercel:production": "vercel deploy --prod"
+
   },
   "author": "abhishek gupta",
   "license": "ISC",
@@ -23,5 +31,9 @@
     "razorpay": "^2.9.5",
     "socket.io": "^4.8.1",
     "validator": "^13.12.0"
+  },
+  "devDependencies": {
+    "vercel": "^41.4.1"
   }
+  
 }
