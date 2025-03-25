@@ -39,6 +39,10 @@ app.use("/", jobsRouter);
 
 const server = http.createServer(app);
 
+server.get("/", (req, res) => {
+  res.send("Hello from Vercel!");
+});
+
 initializeSocket(server);
 
 connectDB()
