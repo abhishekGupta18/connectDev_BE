@@ -1,24 +1,19 @@
 {
-
   "version": 2,
-
   "builds": [
-
     {
-
-      "src": "src/app.js",
-
+      "src": "src/abhi.js",
       "use": "@vercel/node"
-
     }
-
   ],
-
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "src/app.js"
+      "dest": "src/abhi.js"
     }
-  ]
-
+  ],
+  "env": {
+    "MONGO_URI": "@mongo_uri",
+    "NODE_ENV": "production"
+  }
 }
