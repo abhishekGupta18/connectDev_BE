@@ -13,7 +13,7 @@
     }
   ],
   "env": {
-    "MONGO_URI": "@mongo_uri",
+    "MONGO_URI": "@DB_connection_secret",
     "NODE_ENV": "production"
   }
 }
