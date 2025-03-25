@@ -39,7 +39,7 @@ app.use("/", jobsRouter);
 
 const server = http.createServer(app);
 
-server.get("/", (req, res) => {
+app.get("/", (req, res) => {
   res.send("Hello from Vercel!");
 });
 
