@@ -7,11 +7,8 @@
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
     "vercel": "vercel",
-
     "vercel:dev": "vercel dev",
-
     "vercel:deploy": "vercel deploy",
-
     "vercel:production": "vercel deploy --prod"
 
   },
