@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "src/abhi.js",
+      "src": "src/app.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "src/abhi.js"
+      "dest": "src/app.js"
     }
   ],
   "env": {
