@@ -78,10 +78,12 @@ authRouter.post("/login", async (req, res) => {
       // set cookie
 
       res.cookie("token", token, {
+        domain: ".vercel.app", // Ensures cookies work across subdomains
+        path: "/",
         expires: new Date(Date.now() + 8 * 3600000),
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        secure: true, // Must be true in production
+        sameSite: "none", // Required for cross-origin requests
       });
 
       res.send(user);
@@ -104,10 +106,13 @@ authRouter.post("/login", async (req, res) => {
 // });
 
 authRouter.post("/logout", async (req, res) => {
-  res.clearCookie("token", {
+  res.cookie("token", token, {
+    domain: ".vercel.app", // Ensures cookies work across subdomains
+    path: "/",
+    expires: new Date(Date.now() + 8 * 3600000),
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Set secure in production
-    sameSite: "strict",
+    secure: true, // Must be true in production
+    sameSite: "none", // Required for cross-origin requests
   });
 
   res.json({
