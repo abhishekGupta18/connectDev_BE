@@ -8,18 +8,28 @@ const { validationSignUpData } = require("../utilities/validation");
 
 const authRouter = express.Router();
 
+// Helper function for consistent cookie settings
+const setCookieWithToken = (res, token) => {
+  res.cookie("token", token, {
+    // No domain specified - let browser handle it based on same-site principle
+    path: "/",
+    expires: new Date(Date.now() + 8 * 3600000), // 8 hours
+    httpOnly: true,
+    secure: true, // Always true for cross-site
+    sameSite: "none", // Required for cross-site
+  });
+};
+
 // signup api
 authRouter.post("/signup", async (req, res) => {
   try {
     // validating user data
-
     validationSignUpData(req);
 
     const { firstName, lastName, password, email, gender } = req.body;
-    // encrypt password
 
+    // encrypt password
     const enryptedPassword = await bcyrpt.hash(password, 10);
-    // salting and the Blowfish encryption algorithm
 
     const user = new User({
       firstName,
@@ -30,22 +40,25 @@ authRouter.post("/signup", async (req, res) => {
     });
 
     // create token
-
     const token = await user.getJwtToken();
 
-    // set cookie
+    // set cookie using helper function
+    setCookieWithToken(res, token);
 
-    res.cookie("token", token, {
+    // For debugging - set a visible cookie
+    res.cookie("auth_status", "signed_up", {
+      path: "/",
       expires: new Date(Date.now() + 8 * 3600000),
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      httpOnly: false, // Visible in browser
+      secure: true,
+      sameSite: "none",
     });
 
     await user.save();
     res.json({
       message: "user added successfully!!",
       data: user,
+      token: token, // Send token in response for client-side storage if needed
     });
   } catch (e) {
     res.status(400).send("data is not added" + e.message);
@@ -53,7 +66,6 @@ authRouter.post("/signup", async (req, res) => {
 });
 
 // login api
-
 authRouter.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -72,21 +84,25 @@ authRouter.post("/login", async (req, res) => {
 
     if (checkPassword) {
       // create token
-
       const token = await user.getJwtToken();
 
-      // set cookie
+      // set cookie using helper function
+      setCookieWithToken(res, token);
 
-      res.cookie("token", token, {
-        domain: ".vercel.app", // Ensures cookies work across subdomains
+      // For debugging - set a visible cookie
+      res.cookie("auth_status", "logged_in", {
         path: "/",
         expires: new Date(Date.now() + 8 * 3600000),
-        httpOnly: true,
-        secure: true, // Must be true in production
-        sameSite: "none", // Required for cross-origin requests
+        httpOnly: false, // Visible in browser
+        secure: true,
+        sameSite: "none",
       });
 
-      res.send(user);
+      res.json({
+        message: "Login successful",
+        data: user,
+        token: token, // Send token in response for client-side storage if needed
+      });
     } else {
       throw new Error("wrong credentials");
     }
@@ -96,23 +112,23 @@ authRouter.post("/login", async (req, res) => {
 });
 
 // logout api
-
-// authRouter.post("/logout", async (req, res) => {
-//   res.cookie("token", null, { expires: new Date(Date.now()) });
-
-//   res.json({
-//     message: "logout sucessfully ",
-//   });
-// });
-
 authRouter.post("/logout", async (req, res) => {
-  res.cookie("token", token, {
-    domain: ".vercel.app", // Ensures cookies work across subdomains
+  // Clear the authentication cookie
+  res.cookie("token", "", {
     path: "/",
-    expires: new Date(Date.now() + 8 * 3600000),
+    expires: new Date(0), // Expire immediately
     httpOnly: true,
-    secure: true, // Must be true in production
-    sameSite: "none", // Required for cross-origin requests
+    secure: true,
+    sameSite: "none",
+  });
+
+  // Clear the debug cookie too
+  res.cookie("auth_status", "", {
+    path: "/",
+    expires: new Date(0), // Expire immediately
+    httpOnly: false,
+    secure: true,
+    sameSite: "none",
   });
 
   res.json({
