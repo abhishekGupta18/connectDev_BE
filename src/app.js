@@ -7,12 +7,20 @@ const http = require("http");
 
 const app = express();
 
-// Define CORS options with more complete configuration
+// Fixed CORS options to handle both production and development environments
 const corsOptions = {
-  origin:
-    process.env.NODE_ENV === "production"
-      ? "https://connectdev-community.vercel.app"
-      : "http://localhost:5173",
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      "https://connectdev-community.vercel.app",
+      "http://localhost:5173",
+    ];
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
