@@ -11,10 +11,13 @@ const eventSchema = new mongoose.Schema(
       type: String,
       required: true,
       minLength: 4,
+      maxLength: 50,
+      trim: true,
     },
     description: {
       type: String,
       required: true,
+      trim: true,
     },
     eventStartTime: {
       type: Date,
@@ -26,6 +29,7 @@ const eventSchema = new mongoose.Schema(
     },
     location: {
       type: String,
+      trim: true,
     },
     registrationLink: {
       type: String,
