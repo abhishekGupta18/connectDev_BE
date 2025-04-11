@@ -3,8 +3,10 @@ const bcyrpt = require("bcrypt");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const sendEmail = require("../utilities/sendEmail");
 
 const { validationSignUpData } = require("../utilities/validation");
+const VerifiedEmail = require("../models/verifiedEmail");
 
 const authRouter = express.Router();
 
@@ -27,6 +29,12 @@ authRouter.post("/signup", async (req, res) => {
     validationSignUpData(req);
 
     const { firstName, lastName, password, email, gender } = req.body;
+
+    const isVerifiedEmail = await VerifiedEmail.findOne({ email });
+
+    if (!isVerifiedEmail) {
+      return res.status(400).json({ error: "Email not verified via OTP" });
+    }
 
     // encrypt password
     const enryptedPassword = await bcyrpt.hash(password, 10);
@@ -134,6 +142,20 @@ authRouter.post("/logout", async (req, res) => {
   res.json({
     message: "Logout successful",
   });
+});
+
+authRouter.get("/test-email", async (req, res) => {
+  try {
+    await sendEmail(
+      "testuser@example.com",
+      "Hello!",
+      "<p>This is a test email 🚀</p>"
+    );
+    res.send("Email sent");
+  } catch (err) {
+    console.log(err);
+    res.send("Error sending email");
+  }
 });
 
 module.exports = authRouter;
