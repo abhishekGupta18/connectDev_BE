@@ -46,7 +46,7 @@ const userSchema = new mongoose.Schema(
     },
     about: {
       type: String,
-      default: "I am using devTinder",
+      default: "I am using connectdev",
     },
     photoUrl: {
       type: String,

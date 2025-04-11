@@ -42,6 +42,7 @@ const chatRouter = require("./routes/chat");
 const aiChatRouter = require("./routes/aiChat");
 const jobsRouter = require("./routes/jobs");
 const eventRouter = require("./routes/event");
+const otpRouter = require("./routes/otp");
 
 // Apply routes after middleware
 app.use("/", authRouter);
@@ -53,6 +54,7 @@ app.use("/", chatRouter);
 app.use("/", aiChatRouter);
 app.use("/", jobsRouter);
 app.use("/", eventRouter);
+app.use("/", otpRouter);
 
 // Comprehensive Root Route
 app.get("/", (req, res) => {
