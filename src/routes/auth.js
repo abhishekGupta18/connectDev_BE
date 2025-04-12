@@ -63,6 +63,7 @@ authRouter.post("/signup", async (req, res) => {
     });
 
     await user.save();
+    await VerifiedEmail.deleteOne({ email });
     res.json({
       message: "user added successfully!!",
       data: user,
