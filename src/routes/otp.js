@@ -10,12 +10,29 @@ const generateOtp = () => Math.floor(100000 + Math.random() * 90000).toString();
 // send-otp api
 otpRouter.post("/send-otp", async (req, res) => {
   try {
-    const { email } = req.body;
-    if (!email) res.status(400).json({ error: "email is required" });
+    const { email, firstName, lastName, password } = req.body;
+
+    if (!email || !firstName || !lastName || !password) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
 
     const otp = generateOtp();
 
-    await OTP.create({ email, otp });
+    // Upsert the OTP entry
+    await OTP.findOneAndUpdate(
+      { email },
+      {
+        otp,
+        firstName,
+        lastName,
+        password,
+        createdAt: new Date(),
+      },
+      {
+        upsert: true,
+        new: true,
+      }
+    );
 
     const html = `
       <h1>ConnectDev Email Verification</h1>
@@ -23,16 +40,16 @@ otpRouter.post("/send-otp", async (req, res) => {
       <p>This OTP will expire in 5 minutes.</p>
     `;
 
-    await sendEmail(email, "connectdev email verification", html);
-    res.status(200).json({ message: "OTP sent successfully!" });
+    await sendEmail(email, "ConnectDev Email Verification", html);
+
+    return res.status(200).json({ message: "OTP sent successfully!" });
   } catch (e) {
-    res.status(500).json({ error: "Failed to send OTP" });
+    console.error("Failed to send OTP:", e);
+    return res.status(500).json({ error: "Failed to send OTP" });
   }
 });
 
 // verify-otp api
-
-// take eamil and otp, check for existing otp, save email to verified email, deleteotp,
 
 otpRouter.post("/verify-otp", async (req, res) => {
   try {
@@ -48,18 +65,15 @@ otpRouter.post("/verify-otp", async (req, res) => {
     if (alreadyVerified) {
       return res.status(400).json({ error: "Email is already verified." });
     }
-    if (!alreadyVerified) {
-      await VerifiedEmail.create({ email });
-    }
 
     await VerifiedEmail.create({ email });
 
-    await OTP.findByIdAndDelete({ _id: existingOtp._id });
+    await OTP.findByIdAndDelete(existingOtp._id);
 
-    res.status(200).json({ message: "OTP verified successfully!" });
+    return res.status(200).json({ message: "OTP verified successfully!" });
   } catch (e) {
     console.error("Error verifying OTP:", e);
-    res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
