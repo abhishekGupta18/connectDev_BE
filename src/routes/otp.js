@@ -40,8 +40,17 @@ otpRouter.post("/verify-otp", async (req, res) => {
 
     const existingOtp = await OTP.findOne({ email, otp });
 
-    if (!existingOtp)
-      res.status(400).json({ error: "Invalid or expired OTP." });
+    if (!existingOtp) {
+      return res.status(400).json({ error: "Invalid or expired OTP." });
+    }
+
+    const alreadyVerified = await VerifiedEmail.findOne({ email });
+    if (alreadyVerified) {
+      return res.status(400).json({ error: "Email is already verified." });
+    }
+    if (!alreadyVerified) {
+      await VerifiedEmail.create({ email });
+    }
 
     await VerifiedEmail.create({ email });
 
