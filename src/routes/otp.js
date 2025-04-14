@@ -2,6 +2,7 @@ const express = require("express");
 const OTP = require("../models/otp");
 const sendEmail = require("../utilities/sendEmail");
 const VerifiedEmail = require("../models/verifiedEmail");
+const { validationSignUpData } = require("../utilities/validation");
 
 const otpRouter = express.Router();
 
@@ -10,6 +11,8 @@ const generateOtp = () => Math.floor(100000 + Math.random() * 90000).toString();
 // send-otp api
 otpRouter.post("/send-otp", async (req, res) => {
   try {
+    validationSignUpData(req);
+
     const { email, firstName, lastName, password } = req.body;
 
     if (!email || !firstName || !lastName || !password) {
@@ -45,7 +48,7 @@ otpRouter.post("/send-otp", async (req, res) => {
     return res.status(200).json({ message: "OTP sent successfully!" });
   } catch (e) {
     console.error("Failed to send OTP:", e);
-    return res.status(500).json({ error: "Failed to send OTP" });
+    return res.status(400).json({ error: e.message });
   }
 });
 

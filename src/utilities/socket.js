@@ -24,7 +24,7 @@ const initializeSocket = (server) => {
       // whenever chat happens it happens in a room and in that room  there are too many participants
 
       const roomId = getSecretRoomId(userId, targetUserId);
-      console.log(firstName + " joined room " + roomId);
+
       socket.join(roomId);
     });
 
