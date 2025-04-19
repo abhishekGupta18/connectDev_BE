@@ -11,6 +11,13 @@ const userSchema = new mongoose.Schema(
       trim: true,
       minLength: 4,
       maxLength: 50,
+      validate(value) {
+        if (!/^[A-Za-z\s\-']+$/.test(value)) {
+          throw new Error(
+            "First name should contain only letters, spaces, hyphens, and apostrophes"
+          );
+        }
+      },
     },
     lastName: {
       type: String,
@@ -18,6 +25,13 @@ const userSchema = new mongoose.Schema(
       trim: true,
       minLength: 4,
       maxLength: 50,
+      validate(value) {
+        if (!/^[A-Za-z\s\-']+$/.test(value)) {
+          throw new Error(
+            "Last name should contain only letters, spaces, hyphens, and apostrophes"
+          );
+        }
+      },
     },
     email: {
       type: String,
@@ -87,15 +101,15 @@ const userSchema = new mongoose.Schema(
     githubUrl: {
       type: String,
       validate(value) {
-        if (!validator.isURL(value)) {
-          throw new Error("invalid linkedln url");
+        if (value && !validator.isURL(value)) {
+          throw new Error("invalid github url");
         }
       },
     },
     linkedlnUrl: {
       type: String,
       validate(value) {
-        if (!validator.isURL(value)) {
+        if (value && !validator.isURL(value)) {
           throw new Error("invalid linkedln url");
         }
       },
@@ -103,7 +117,7 @@ const userSchema = new mongoose.Schema(
     twitterUrl: {
       type: String,
       validate(value) {
-        if (!validator.isURL(value)) {
+        if (value && !validator.isURL(value)) {
           throw new Error("invalid X url");
         }
       },
@@ -111,7 +125,7 @@ const userSchema = new mongoose.Schema(
     projectUrl: {
       type: String,
       validate(value) {
-        if (!validator.isURL(value)) {
+        if (value && !validator.isURL(value)) {
           throw new Error("invalid url");
         }
       },

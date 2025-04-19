@@ -4,11 +4,15 @@ const validationSignUpData = (req) => {
   const { firstName, lastName, password, email } = req.body;
 
   if (!firstName || !lastName) {
-    throw new Error(" Name is not valid");
+    throw new Error("Name is not valid");
+  } else if (/\d/.test(firstName) || /\d/.test(lastName)) {
+    throw new Error("Names should not contain numbers");
   } else if (!validator.isEmail(email)) {
     throw new Error("Email is not valid");
   } else if (!validator.isStrongPassword(password)) {
-    throw new Error(" Password is not strong");
+    throw new Error(
+      "Password is not strong. Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one symbol."
+    );
   }
 };
 
