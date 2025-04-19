@@ -86,6 +86,11 @@ const userSchema = new mongoose.Schema(
     },
     githubUrl: {
       type: String,
+      validate(value) {
+        if (!validator.isURL(value)) {
+          throw new Error("invalid linkedln url");
+        }
+      },
     },
     linkedlnUrl: {
       type: String,
