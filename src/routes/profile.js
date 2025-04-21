@@ -2,6 +2,8 @@ const express = require("express");
 const bcyrpt = require("bcrypt");
 const { userAuth } = require("../middlewares/auth");
 const { validationEditProfileData } = require("../utilities/validation");
+const { default: mongoose } = require("mongoose");
+const User = require("../models/user");
 
 const profileRouter = express.Router();
 
@@ -45,6 +47,18 @@ profileRouter.post("/updatePassword", userAuth, async (req, res) => {
 
     loggedInUser.save();
     res.send("password updated successfully !!");
+  } catch (e) {
+    res.status(400).send("Error: " + e.message);
+  }
+});
+
+// profile of any user
+
+profileRouter.get("/profile/:targetUserId", userAuth, async (req, res) => {
+  try {
+    const { targetUserId } = req.params;
+    const user = await User.findById({ _id: targetUserId });
+    res.send(user);
   } catch (e) {
     res.status(400).send("Error: " + e.message);
   }
