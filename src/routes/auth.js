@@ -30,6 +30,14 @@ authRouter.post("/signup", async (req, res) => {
 
     const { firstName, lastName, password, email, gender } = req.body;
 
+    // First check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      // Clean up the verified email record if it exists
+      await VerifiedEmail.deleteOne({ email });
+      return res.status(400).json({ error: "Email already exists" });
+    }
+
     const isVerifiedEmail = await VerifiedEmail.findOne({ email });
 
     if (!isVerifiedEmail) {
@@ -70,7 +78,21 @@ authRouter.post("/signup", async (req, res) => {
       token: token, // Send token in response for client-side storage if needed
     });
   } catch (e) {
-    res.status(400).send("data is not added" + e.message);
+    // Clean up the verified email in case of any error
+    if (req.body && req.body.email) {
+      try {
+        // Only if the error isn't related to email verification
+        const verifiedEmail = await VerifiedEmail.findOne({
+          email: req.body.email,
+        });
+        if (verifiedEmail && !e.message.includes("Email not verified")) {
+          await VerifiedEmail.deleteOne({ email: req.body.email });
+        }
+      } catch (cleanupError) {
+        console.error("Error cleaning up verified email:", cleanupError);
+      }
+    }
+    res.status(400).json({ error: "Registration failed: " + e.message });
   }
 });
 
@@ -116,7 +138,7 @@ authRouter.post("/login", async (req, res) => {
       throw new Error("wrong credentials");
     }
   } catch (e) {
-    res.status(400).send("Login failed " + e.message);
+    res.status(400).json({ error: "Login failed: " + e.message });
   }
 });
 

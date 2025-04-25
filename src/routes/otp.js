@@ -1,5 +1,6 @@
 const express = require("express");
 const OTP = require("../models/otp");
+const User = require("../models/user"); // Added User model import
 const sendEmail = require("../utilities/sendEmail");
 const VerifiedEmail = require("../models/verifiedEmail");
 const { validationSignUpData } = require("../utilities/validation");
@@ -17,6 +18,14 @@ otpRouter.post("/send-otp", async (req, res) => {
 
     if (!email || !firstName || !lastName || !password) {
       return res.status(400).json({ error: "All fields are required" });
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      // Clean up any verified email record
+      await VerifiedEmail.deleteOne({ email });
+      return res.status(400).json({ error: "Email already exists" });
     }
 
     const otp = generateOtp();
@@ -40,7 +49,7 @@ otpRouter.post("/send-otp", async (req, res) => {
     const html = `
       <h1>ConnectDev Email Verification</h1>
       <p>Your OTP is: <b>${otp}</b></p>
-      <p>This OTP will expire in 5 minutes.</p>
+      <p>This OTP will expire in 4 minutes.</p>
     `;
 
     await sendEmail(email, "ConnectDev Email Verification", html);
@@ -53,10 +62,16 @@ otpRouter.post("/send-otp", async (req, res) => {
 });
 
 // verify-otp api
-
 otpRouter.post("/verify-otp", async (req, res) => {
   try {
     const { email, otp } = req.body;
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      await OTP.deleteOne({ email }); // Clean up OTP
+      return res.status(400).json({ error: "Email already exists" });
+    }
 
     const existingOtp = await OTP.findOne({ email, otp });
 
@@ -64,13 +79,13 @@ otpRouter.post("/verify-otp", async (req, res) => {
       return res.status(400).json({ error: "Invalid or expired OTP." });
     }
 
-    const alreadyVerified = await VerifiedEmail.findOne({ email });
-    if (alreadyVerified) {
-      return res.status(400).json({ error: "Email is already verified." });
-    }
+    // Delete any existing verification first
+    await VerifiedEmail.deleteOne({ email });
 
+    // Then create a new verification
     await VerifiedEmail.create({ email });
 
+    // Clean up OTP
     await OTP.findByIdAndDelete(existingOtp._id);
 
     return res.status(200).json({ message: "OTP verified successfully!" });
