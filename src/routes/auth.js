@@ -102,43 +102,44 @@ authRouter.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     if (!validator.isEmail(email)) {
-      throw new Error("write a valid emailid");
+      return res.status(400).json({ error: "Write a valid email id" });
     }
 
     const user = await User.findOne({ email: email });
 
     if (!user) {
-      throw new Error("wrong credentials");
+      return res.status(400).json({ error: "Wrong credentials" });
     }
 
     const checkPassword = await user.validatePassword(password);
 
-    if (checkPassword) {
-      // create token
-      const token = await user.getJwtToken();
-
-      // set cookie using helper function
-      setCookieWithToken(res, token);
-
-      // For debugging - set a visible cookie
-      res.cookie("auth_status", "logged_in", {
-        path: "/",
-        expires: new Date(Date.now() + 8 * 3600000),
-        httpOnly: false, // Visible in browser
-        secure: true,
-        sameSite: "none",
-      });
-
-      res.json({
-        message: "Login successful",
-        data: user,
-        token: token, // Send token in response for client-side storage if needed
-      });
-    } else {
-      throw new Error("wrong credentials");
+    if (!checkPassword) {
+      return res.status(400).json({ error: "Wrong credentials" });
     }
-  } catch (e) {
-    res.status(400).json({ error: "Login failed: " + e.message });
+
+    // create token
+    const token = await user.getJwtToken();
+
+    // set cookie using helper function
+    setCookieWithToken(res, token);
+
+    // For debugging - set a visible cookie
+    res.cookie("auth_status", "logged_in", {
+      path: "/",
+      expires: new Date(Date.now() + 8 * 3600000),
+      httpOnly: false,
+      secure: true,
+      sameSite: "none",
+    });
+
+    res.json({
+      message: "Login successful",
+      data: user,
+      token: token,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
@@ -165,20 +166,6 @@ authRouter.post("/logout", async (req, res) => {
   res.json({
     message: "Logout successful",
   });
-});
-
-authRouter.get("/test-email", async (req, res) => {
-  try {
-    await sendEmail(
-      "testuser@example.com",
-      "Hello!",
-      "<p>This is a test email 🚀</p>"
-    );
-    res.send("Email sent");
-  } catch (err) {
-    console.log(err);
-    res.send("Error sending email");
-  }
 });
 
 module.exports = authRouter;
