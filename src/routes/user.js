@@ -32,10 +32,6 @@ userRouter.get("/user/requests/recevied", userAuth, async (req, res) => {
       .populate("fromUserId", dataToBeSend)
       .sort({ createdAt: -1 }); // we can also write required fields in string as well
 
-    //const data = connectionRequests.map((req) => req.fromUserId);
-    // console.log(connectionRequests);
-    // console.log(data);
-
     res.json({
       message: "data fetched successfully",
       data: connectionRequests,
